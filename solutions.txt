@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.entity.CartEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.model.Product;
 import com.model.ShoppingCartRequest;
@@ -33,12 +34,42 @@ public class CartService {
 				.bodyToFlux(Product.class)
 				.collectList()
 				.block();
-		System.out.println(productServiceURL);
-		return null;
+		Double [] totalConsts= {0.0};
+		productServiceList.forEach(psl -> {
+			shoppingCartRequests.forEach(cr -> {
+				if(psl.getProductId()== cr.getProductId()) {
+					psl.setQuantity(cr.getQuantity());
+					totalConsts[0]= totalConsts[0]+psl.getPrice()*cr.getQuantity();
+				}
+			});
+		});
+		CartEntity cartEntity=null;
+		try {
+			cartEntity=CartEntity.builder()
+					.userId(userId)
+					.cartId((long)(Math.random()*Math.pow(10, 10)))
+					.totalItems(productServiceList.size())
+					.totalCosts(totalConsts[0])
+					.products(mapper.writeValueAsString(productServiceList))
+					.build();
+			cartEntity=repo.save(cartEntity);
+			}catch (Exception e) {
+			
+		}
+		//return response
+		ShoppingCartResponse res= ShoppingCartResponse.builder()
+				.cartId(cartEntity.getCartId())
+				.userId(cartEntity.getUserId())
+				.totalItems(cartEntity.getTotalItems())
+				.totalCosts(cartEntity.getTotalCosts())
+				.products(productServiceList)
+				.build();
+		return res;
 				
 	}
 
 }
+
 -----------
 
 package com.controller;

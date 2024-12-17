@@ -1,8 +1,32 @@
-spring.application.name=configserver
-server.port=8012
-spring.profiles.active=git
-spring.cloud.config.server.git.uri=https://github.com/amarjeet-arora/syne-config
-spring.cloud.config.server.git.username=amarjeet.sn1@gmail.com
-spring.cloud.config.server.git.password=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
-spring.cloud.config.server.git.clone-on-start=true
-spring.cloud.config.server.git.default-label=main
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<p>Access Denied....! Kindly visit to Welcome Page </p>
+<a th:href="@{/welcome}" >Welcome</a>
+<a th:href="@{/logout}" >Logout</a>
+</body>
+</html>
+
+
+
+
+------
+
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<p>Welcome Admin </p>
+
+<a th:href="@{/logout}" >Logout</a>
+</body>
+</html>

@@ -1,32 +1,91 @@
-<!DOCTYPE html>
+package com.example.spring_security;
 
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="ISO-8859-1">
-<title>Insert title here</title>
-</head>
-<body>
-<p>Access Denied....! Kindly visit to Welcome Page </p>
-<a th:href="@{/welcome}" >Welcome</a>
-<a th:href="@{/logout}" >Logout</a>
-</body>
-</html>
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 
+@Configuration
+@EnableWebSecurity
+public class AppSecurity {
+@Bean
+	protected InMemoryUserDetailsManager configAuth() {
+		List<UserDetails> users = new ArrayList<UserDetails>();
+		// user-1
+		List<GrantedAuthority> authority = new ArrayList<GrantedAuthority>();
+		authority.add(new SimpleGrantedAuthority("ADMIN"));
+		UserDetails admin = new User("admin", "{noop}admin123", authority);
+		users.add(admin);
+		// user-2
+		List<GrantedAuthority> authority2 = new ArrayList<GrantedAuthority>();
+		authority.add(new SimpleGrantedAuthority("MANAGER"));
+		UserDetails manager = new User("manager", "{noop}manager123", authority2);
+		users.add(manager);
+		// user-3
+		List<GrantedAuthority> authority3 = new ArrayList<GrantedAuthority>();
+		authority.add(new SimpleGrantedAuthority("EMPLOYEE"));
+		UserDetails emp = new User("employee", "{noop}employee123", authority3);
+		users.add(emp);
+		return new InMemoryUserDetailsManager(users);
+	}
 
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(auth -> auth.requestMatchers("/home").permitAll().requestMatchers("/welcome")
+				.authenticated().requestMatchers("/admin").hasAuthority("ADMIN").requestMatchers("/emp")
+				.hasAuthority("EMPLOYEE").requestMatchers("/manager").hasAuthority("MANAGER").requestMatchers("/common")
+				.hasAnyAuthority("MANAGER", "EMPLOYEE").anyRequest().authenticated())
+				.formLogin(formLogin -> formLogin.defaultSuccessUrl("/welcome", true))
+				.logout(logout -> logout.logoutUrl("/logout"))
+				.exceptionHandling(eh -> eh.accessDeniedPage("/accessdenied"));
 
-------
+		return http.build();
 
-<!DOCTYPE html>
+	}
 
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="ISO-8859-1">
-<title>Insert title here</title>
-</head>
-<body>
-<p>Welcome Admin </p>
+}
+----------
 
-<a th:href="@{/logout}" >Logout</a>
-</body>
-</html>
+package com.example.spring_security;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Controller
+ public class RestAppSecurity {
+	@GetMapping("/welcome")
+	public String welcome() {
+		return "welcome";
+	}
+	@GetMapping("/home")
+	public String home() {
+		return "home";
+	}
+	@GetMapping("/admin")
+	public String admin() {
+		return "admin";
+	}
+	@GetMapping("/employee")
+	public String emp() {
+		return "employee";
+	}
+	@GetMapping("/manager")
+	public String manager() {
+		return "manager";
+	}
+	@GetMapping("/common")
+	public String common() {
+		return "common";
+	}
+}

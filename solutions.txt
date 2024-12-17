@@ -1,54 +1,8 @@
-spring:
- application:
-  name: cart-gateway
- cloud:
-  gateway:
-   routes:
-    - id: psr
-      predicates:
-       - Path=/products/**
-      uri: lb://products-service
-server:
- port: 8888
-
-eureka:
- client:
-  serviceUrl:
-   defaultZone: http://localhost:7777/eureka
-
-management:
- endpoints:
-  web:
-   exposure:
-    include: "*"
- security:
-  enabled: false
-
-
------------
-
-package com.example.cart_api_gateway;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.gateway.route.RouteLocator;
-import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
-import org.springframework.context.annotation.Bean;
-
-@SpringBootApplication
-@EnableDiscoveryClient
-public class CartApiGatewayApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(CartApiGatewayApplication.class, args);
-	}
-	@Bean
-	RouteLocator gatewayRoute(RouteLocatorBuilder builder) {
-		return builder.routes()
-				.route("sr",rs-> rs
-						.path("/shoppingcart/**")
-						.uri("lb://shop-cart-app"))
-						.build();}
-
-}
+spring.application.name=configserver
+server.port=8012
+spring.profiles.active=git
+spring.cloud.config.server.git.uri=https://github.com/amarjeet-arora/syne-config
+spring.cloud.config.server.git.username=amarjeet.sn1@gmail.com
+spring.cloud.config.server.git.password=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
+spring.cloud.config.server.git.clone-on-start=true
+spring.cloud.config.server.git.default-label=main

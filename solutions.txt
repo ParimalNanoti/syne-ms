@@ -1,18 +1,16 @@
-apiVersion: apps/v1
-kind: DaemonSet
+apiVersion: v1
+kind: Pod
 metadata:
-  name: nginx-ds
+  name: myapp-pod
+  labels:
+    app: myapp
 spec:
-  template:
-    metadata:
-      labels:
-        name: nginx
-    spec:
-      containers:
-      - name: nginx-container
-        image: nginx
-      nodeSelector:
-        disktype: ssd
-  selector:
-    matchLabels:
-      name: nginx
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 5; done;']
+  
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
